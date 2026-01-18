@@ -13,8 +13,6 @@ public record BookCreateRequest(
         @Pattern(regexp = "^[a-zA-Z\\s]+$", message = "Numele autorului poate conține doar litere și spații")
         String author,
 
-        @NotBlank(message = "ISBN-ul este obligatoriu")
-        @Size(min = 10, max = 13, message = "ISBN-ul trebuie să aibă între 10 și 13 cifre")
-        String isbn
-) {
+        int price
+        ) {
 }

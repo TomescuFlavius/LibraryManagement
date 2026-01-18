@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private long id;
 
     @Column(name = "titlu", nullable = false)
     @NotBlank(message = "Titlul este obligatoriu")
@@ -29,8 +29,7 @@ public class Book {
     @NotBlank(message = "Autorul este obligatoriu")
     private String author;
 
-    @Size(min = 10, message = "ISBN-ul este prea scurt")
-    private String isbn;
+    private int price;
 
 
 }

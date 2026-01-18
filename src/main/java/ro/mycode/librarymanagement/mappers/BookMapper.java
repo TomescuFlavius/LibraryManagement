@@ -5,22 +5,27 @@ import ro.mycode.librarymanagement.dtos.BookCreateRequest;
 import ro.mycode.librarymanagement.dtos.BookResponse;
 import ro.mycode.librarymanagement.model.Book;
 
+import java.util.List;
+
 @Component
 public class BookMapper {
     public Book toEntity(BookCreateRequest request) {
         return Book.builder()
                 .title(request.title())
                 .author(request.author())
-                .isbn(request.isbn())
+                .price(request.price())
                 .build();
     }
 
     public BookResponse toDto(Book book) {
         return BookResponse.builder()
-                .id(book.getId())
+                .id(Long.valueOf(book.getId()))
                 .title(book.getTitle())
                 .author(book.getAuthor())
-                .isbn(book.getIsbn())
+                .price(book.getPrice())
                 .build();
+    }
+    public List<BookResponse> toDtoList(List<Book> books) {
+        return books.stream().map(this::toDto).toList();
     }
 }
