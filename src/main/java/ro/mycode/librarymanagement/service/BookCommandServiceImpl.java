@@ -19,6 +19,7 @@ public class BookCommandServiceImpl implements BookCommandService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
 
+
     public BookCommandServiceImpl(BookRepository bookRepository, BookMapper bookMapper) {
         this.bookRepository = bookRepository;
         this.bookMapper = bookMapper;
@@ -36,8 +37,11 @@ public class BookCommandServiceImpl implements BookCommandService {
 
     @Override
     @Transactional
-    public BookResponse update(long bookId, BookUpdateRequest request) {
-        Book book = bookRepository.findById(bookId).orElseThrow(() -> new BookNotFoundException(bookId));
+    public BookResponse update(String title, BookUpdateRequest request) {
+        Book book = bookRepository.findByTitle(title);
+        if (!bookRepository.existsBookByTitleIgnoreCase(book.getTitle())){
+            throw new BookNotFoundException(book.getTitle());
+        }
         if (request.title() != null && !request.title().isBlank()) {
             book.setTitle(request.title());
         }
@@ -53,9 +57,10 @@ public class BookCommandServiceImpl implements BookCommandService {
 
     @Override
     @Transactional
-    public void delete(long bookId) {
+    public void delete(String title) {
 
-        Book book= bookRepository.findById(bookId).orElseThrow(()->new BookNotFoundException(bookId));
+        Book book= bookRepository.findByTitle(title);
+        if (!bookRepository.existsBookByTitleIgnoreCase(book.getTitle())) throw new BookNotFoundException(title);
         bookRepository.delete(book);
     }
 }

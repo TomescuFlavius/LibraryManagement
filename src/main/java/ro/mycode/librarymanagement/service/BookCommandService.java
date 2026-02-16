@@ -7,6 +7,6 @@ import ro.mycode.librarymanagement.dtos.BookUpdateRequest;
 public interface BookCommandService {
 
     BookResponse create(BookCreateRequest request);
-    BookResponse update(long bookId, BookUpdateRequest request);
-    void delete(long bookId);
+    BookResponse update(String title, BookUpdateRequest request);
+    void delete(String title);
 }

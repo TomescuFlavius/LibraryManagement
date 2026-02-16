@@ -2,6 +2,7 @@ package ro.mycode.librarymanagement.service;
 
 import org.springframework.stereotype.Service;
 import ro.mycode.librarymanagement.dtos.BookResponse;
+import ro.mycode.librarymanagement.dtos.BookResponseList;
 import ro.mycode.librarymanagement.mappers.BookMapper;
 import ro.mycode.librarymanagement.model.Book;
 import ro.mycode.librarymanagement.repository.BookRepository;
@@ -22,18 +23,20 @@ public class BookQueryServiceImpl implements BookQueryService {
 
 
     @Override
-    public List<Book> findByAuthor(String author) {
-        return bookRepository.findByAuthor(author);
+    public BookResponseList findByAuthor(String author) {
+        return new BookResponseList(bookMapper.toDtoList(bookRepository.findByAuthor(author))) ;
     }
 
     @Override
-    public List<Book> findByTitle(String title) {
-        return bookRepository.findByTitle(title);
+    public BookResponseList findByTitle(String title) {
+
+        return new BookResponseList(bookMapper.toDtoList(bookRepository.findBooksByTitle(title))) ;
     }
 
     @Override
-    public List<Book> findByPrice(int min, int max) {
-        return bookRepository.findByPrice(min,max);
+    public BookResponseList findByPrice(int min, int max) {
+        List<Book> books=bookRepository.findByPrice(min,max);
+        return new BookResponseList(bookMapper.toDtoList(books));
     }
 
     @Override
@@ -42,8 +45,8 @@ public class BookQueryServiceImpl implements BookQueryService {
     }
 
     @Override
-    public List<Book> findByTitleContaining(String partCuvant) {
-        return bookRepository.findByTitleContaining(partCuvant);
+    public BookResponseList findByTitleContaining(String partCuvant) {
+        return new BookResponseList(bookMapper.toDtoList(bookRepository.findByTitleContaining(partCuvant)));
     }
 
     @Override
@@ -52,7 +55,17 @@ public class BookQueryServiceImpl implements BookQueryService {
     }
 
     @Override
-    public List<Book> findByAuthorSorted(String author) {
-        return bookRepository.findByAuthorSorted(author);
+    public BookResponseList findByAuthorSorted(String author) {
+        return new BookResponseList(bookMapper.toDtoList(bookRepository.findByAuthorSorted(author))) ;
+    }
+
+    @Override
+    public BookResponse findBookByTitle(String title) {
+        return bookMapper.toDto(bookRepository.findByTitle(title));
+    }
+
+    @Override
+    public BookResponseList findAllBooks(){
+        return new BookResponseList(bookMapper.toDtoList(bookRepository.findAll()));
     }
 }

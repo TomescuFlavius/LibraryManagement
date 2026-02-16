@@ -3,20 +3,20 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 import ro.mycode.librarymanagement.dtos.BookCreateRequest;
 import ro.mycode.librarymanagement.dtos.BookResponse;
+import ro.mycode.librarymanagement.dtos.BookResponseList;
 import ro.mycode.librarymanagement.dtos.BookUpdateRequest;
 import ro.mycode.librarymanagement.exceptions.BookAlreadyExistException;
 import ro.mycode.librarymanagement.exceptions.BookNotFoundException;
 import ro.mycode.librarymanagement.mappers.BookMapper;
-import ro.mycode.librarymanagement.model.Book;
 import ro.mycode.librarymanagement.repository.BookRepository;
 import ro.mycode.librarymanagement.service.BookCommandService;
 import ro.mycode.librarymanagement.service.BookQueryService;
 import java.util.List;
 import java.util.Scanner;
-import java.util.SortedSet;
 
 
-@Component
+
+
 public class View {
     private BookRepository bookRepository;
     private BookMapper bookMapper;
@@ -30,47 +30,45 @@ public class View {
         this.bookMapper = bookMapper;
         this.bookQueryService=bookQueryService;
         this.bookCommandService=bookCommandService;
+        this.scanner=new Scanner(System.in);
 
 
+        this.getAll();
+        this.delete();
         this.update();
 
-//        this.getAll();
-//        this.getByAuthor("Ion Creanga");
-//        this.getByTitle();
-//        this.getBooksByPriceRange(0,1000);
-//        this.existByTitle("Povesti");
-//        this.getByTitleContaining("Pov");
+        this.getByAuthor("Ion Creanga");
+        this.getByTitle();
+        this.getByTitleContaining("Amint");
+        this.authorSorted();
+        this.getBooksByPriceRange(1,10);
+        this.existByTitle("Povesti");
+        this.countExpensive();
 
-//        this.updateAuthorByTitle();
-//        this.maxPrice();
-//        this.delete();
-//        this.updatePriceByAuthor();
-//        this.findLike();
-//        this.countExpensive();
-//        this.authorSorted();
-//        this.delete();
+
+
 
 
 
 
     }
 
-//    private void play() {
-//        boolean running = true;
-//        while (running) {
-//            System.out.println("1. Adauga o carte");
-//            System.out.println("2. Vezi toate cartile");
-//            System.out.println("0. Iesire");
-//
-//            String choice = scanner.nextLine();
-//            switch (choice) {
-//                case "1" -> addBook();
-//                case "2" -> listBooks();
-//                case "0" -> running = false;
-//                default -> System.out.println("Invalida!");
-//            }
-//        }
-//    }
+    private void play() {
+        boolean running = true;
+        while (running) {
+            System.out.println("1. Adauga o carte");
+            System.out.println("2. Vezi toate cartile");
+
+
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> addBook();
+                case "2" -> getAll();
+                case "0" -> running = false;
+                default -> System.out.println("Invalida!");
+            }
+        }
+    }
 
 
     public void getAll(){
@@ -78,22 +76,23 @@ public class View {
     }
 
     public void getByAuthor(String author){
-        List<Book> rez1=bookQueryService.findByAuthor(author);
+        List<BookResponse> rez1= bookQueryService.findByAuthor(author).bookResponseList();
         if (!rez1.isEmpty()){
-            System.out.println(bookMapper.toDtoList(rez1));
+            rez1.forEach(System.out::println);
         }
     }
 
     public void getByTitle(){
-        List<Book> rez=bookQueryService.findByTitle("Amintiri din copilarie");
-        if (!rez.isEmpty()) System.out.println(bookMapper.toDtoList(rez));
+        List<BookResponse> rez= bookQueryService.findByTitle("Amintiri din copilarie").bookResponseList();
+        if (!rez.isEmpty())
+            rez.forEach(System.out::println);
     }
 
     public void getBooksByPriceRange(int min, int max){
-        List<Book> rez=bookQueryService.findByPrice(min,max);
-        rez.forEach(System.out::println);
+        List<BookResponse> rez= bookQueryService.findByPrice(min,max).bookResponseList();
+
         if (!rez.isEmpty()){
-            System.out.println("Lista carti:" + bookMapper.toDtoList(rez));
+            rez.forEach(System.out::println);
         }
     }
 
@@ -103,8 +102,8 @@ public class View {
     }
 
     public void getByTitleContaining(String partTitle){
-        List<Book> rez=bookQueryService.findByTitleContaining("Pov");
-        System.out.println(bookMapper.toDtoList(rez));
+        List<BookResponse> rez= bookQueryService.findByTitleContaining(partTitle).bookResponseList();
+        rez.forEach(System.out::println);
     }
 
 
@@ -113,27 +112,10 @@ public class View {
     }
 
     public void authorSorted() {
-        bookQueryService.findByAuthorSorted("Ion Creanga").forEach(b -> System.out.println(bookMapper.toDto(b)));
+        bookQueryService.findByAuthorSorted("Ion Creanga").bookResponseList().forEach(System.out::println);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public void addBook() {
-
             System.out.print("Titlu: ");
             String title = scanner.nextLine();
             System.out.print("Autor: ");
@@ -152,10 +134,9 @@ public class View {
 
 
     public void update() {
-        System.out.println("Id:");
-        assert scanner != null;
-        long bookId = Long.parseLong(scanner.nextLine());
         System.out.println("Title");
+        String bookTitle = scanner.nextLine();
+        System.out.println("New Title");
         String title = scanner.nextLine();
         System.out.println("Autor");
         String author=scanner.nextLine();
@@ -165,7 +146,7 @@ public class View {
 
         BookUpdateRequest request = new BookUpdateRequest(title, author, price);
         try {
-            BookResponse response = bookCommandService.update(bookId, request);
+            BookResponse response = bookCommandService.update(bookTitle, request);
             System.out.println("Utilizator actualizat: " + response);
         } catch (BookNotFoundException e) {
             System.out.println(e.getMessage());
@@ -173,10 +154,10 @@ public class View {
     }
 
     public void delete(){
-        System.out.println("ID carte de sters: ");
-        long bookId = Long.parseLong(scanner.nextLine());
+        System.out.println("Titlu carte de sters: ");
+        String btitle = scanner.nextLine();
         try {
-            bookCommandService.delete(bookId);
+            bookCommandService.delete(btitle);
             System.out.println("Carte stearsa cu succes.");
         } catch (BookNotFoundException e) {
             System.out.println(e.getMessage());
