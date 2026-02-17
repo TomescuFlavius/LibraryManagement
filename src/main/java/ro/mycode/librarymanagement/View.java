@@ -1,10 +1,9 @@
 package ro.mycode.librarymanagement;
-import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Component;
 import ro.mycode.librarymanagement.dtos.BookCreateRequest;
+import ro.mycode.librarymanagement.dtos.BookPatchRequest;
 import ro.mycode.librarymanagement.dtos.BookResponse;
-import ro.mycode.librarymanagement.dtos.BookResponseList;
 import ro.mycode.librarymanagement.dtos.BookUpdateRequest;
+
 import ro.mycode.librarymanagement.exceptions.BookAlreadyExistException;
 import ro.mycode.librarymanagement.exceptions.BookNotFoundException;
 import ro.mycode.librarymanagement.mappers.BookMapper;
@@ -12,6 +11,7 @@ import ro.mycode.librarymanagement.repository.BookRepository;
 import ro.mycode.librarymanagement.service.BookCommandService;
 import ro.mycode.librarymanagement.service.BookQueryService;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 
 
@@ -131,9 +131,7 @@ public class View {
             System.out.println(e.getMessage());
         }
     }
-
-
-    public void update() {
+    public void update(){
         System.out.println("Title");
         String bookTitle = scanner.nextLine();
         System.out.println("New Title");
@@ -142,11 +140,24 @@ public class View {
         String author=scanner.nextLine();
         System.out.println("Pret:");
         int price = Integer.parseInt(scanner.nextLine());
-
-
         BookUpdateRequest request = new BookUpdateRequest(title, author, price);
         try {
             BookResponse response = bookCommandService.update(bookTitle, request);
+            System.out.println("Utilizator actualizat: " + response);
+        } catch (BookNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+
+    }
+
+
+    public void patch() {
+        System.out.println("Title");
+        String bookTitle = scanner.nextLine();
+
+        BookPatchRequest request = new BookPatchRequest(Optional.empty(), Optional.empty(), Optional.empty());
+        try {
+            BookResponse response = bookCommandService.patch(bookTitle, request);
             System.out.println("Utilizator actualizat: " + response);
         } catch (BookNotFoundException e) {
             System.out.println(e.getMessage());
